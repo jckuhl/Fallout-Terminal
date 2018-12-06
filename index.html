@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="./style/style.css">
+</head>
+<body>
+    <header>
+        <h1>Fallout Terminal</h1>
+        <p>Fallout Terminal emulates a terminal from the Fallout series.  Try to guess the password before you run out of attempts!</p>
+        <h3>How to play:</h3>
+    </header>
+    <div class="terminal-grid">
+        <div class="terminal-head">
+            <p>Password Required</p>
+            <p>Attempts Remaining: <span id="attempts"></span></p>
+        </div>
+        <div class="terminal-body">
+            <div class="terminal-col-narrow hex"></div>
+            <div class="terminal-col-wide code"></div>
+            <div class="terminal-col-narrow hex"></div>
+            <div class="terminal-col-wide code"></div>
+            <div class="terminal-col-narrow" id="answers"></div>
+        </div>
+    </div>
+
+    <script src="./scripts/app.js" type="module"></script>
+</body>
+</html>

@@ -1,0 +1,54 @@
+@import url('https://fonts.googleapis.com/css?family=VT323');
+
+:root {
+    --bg-screen: black;
+    --terminal-text-color: green;
+    --terminal-text-font: 'VT323', monospace;
+}
+
+body {
+    font-family: monospace;
+    color: black;
+    margin: 0;
+    padding: 0;
+}
+
+.terminal-grid {
+    font-family: var(--terminal-text-font);
+    color: var(--terminal-text-color);
+    font-size: 1.125rem;
+    background: var(--bg-screen);
+    margin: 0 auto;
+    padding: 2rem;
+    width: 80%;
+    display: grid;
+    grid-template-rows: 1fr 5fr;
+    border-radius: 15%;
+}
+
+.terminal-head {
+    padding-top: 1.25rem;
+    line-height: 0.125rem;
+}
+
+.terminal-body {
+    padding-bottom: 1.25rem;
+    display: grid;
+    grid-template-columns: 1fr 4fr 1fr 4fr 1fr
+}
+
+.terminal-col-narrow {
+    display: grid;
+    grid-template-rows: repeat(16, 1fr);
+}
+
+.terminal-col-wide {
+    display: grid;
+    grid-template: repeat(16, 1fr) / repeat(12, 1rem);
+}
+
+/* inverse colors for selected characters */
+.selected {
+    background: var(--terminal-text-color);
+    color: var(--bg-screen);
+}
