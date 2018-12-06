@@ -7,7 +7,7 @@ export default class Char {
      * @param {boolean} [isBracket=false] Determines if this is a bracket for removing dudes/reseting attempts
      * @memberof Char
      */
-    constructor(char, position, isLetter=false, isBracket=false) {
+    constructor(char, position) {
         this.selected = position === 0;
         this.position = position;
         this.char = char;
@@ -21,5 +21,11 @@ export default class Char {
     select() {
         this.select = true;
         this.div.classList.add('selected');
+    }
+
+    setWord(char, word) {
+        this.char = char;
+        this.div.innerHTML = char;
+        this.word = word;
     }
 }
