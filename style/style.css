@@ -21,6 +21,7 @@ body {
     margin: 0 auto;
     padding: 2rem;
     width: 70%;
+    min-height: 526px;
     display: grid;
     grid-template-rows: auto;
     border-radius: 15%;

@@ -9,7 +9,9 @@ import Prompt from './prompt.js';
 export default class Terminal {
     constructor(selector) {
         this.terminal = document.querySelector(selector);
-        this.prompt = new Prompt('#answers')
+        this.prompt = new Prompt('#answers');
+        this.prompt.input.innerHTML = '>'
+        this.wordLength = 0;
         this.words = [];
         this.chars = [];
         this.password = '';
@@ -27,15 +29,15 @@ export default class Terminal {
      */
     async play(level) {
         const difficulty = {
-            easy: 4,
-            advanced: 6,
-            expert: 8,
-            master: 10
+            novice: { min: 4, max: 5},
+            advanced: { min: 6, max: 8 },
+            expert: { min: 9, max: 10 },
+            master: { min: 11, max: 12 }
         }
 
-        const wordLength = difficulty[level];
+        this.wordLength = random(difficulty[level].max, difficulty[level].min);
         let words = await http.getWords();
-        words = words.filter(word => word.length === wordLength).map(word => word.toUpperCase());
+        words = words.filter(word => word.length === this.wordLength).map(word => word.toUpperCase());
         for(let i = 0; i < 10; i++) {
             this.words.push(words[random(words.length)]);
         }
@@ -86,6 +88,8 @@ export default class Terminal {
                 this.chars.forEach(char => char.deselect());
                 this.chars[this.cursor].select();
                 this.prompt.setPrompt(this.chars[this.cursor].char);
+            } else if(this.chars[this.cursor].bracketData) {
+                console.log('brackets! ' + this.chars[this.cursor]);
             } else {
                 this.chars.forEach(char => char.deselect());
                 this.chars[this.cursor].select();
@@ -94,14 +98,10 @@ export default class Terminal {
                             .forEach(char => char.select());
                 this.prompt.setPrompt(word);
             }
+            console.log(this.chars[this.cursor])
         } else if(event.key === "Enter") {
             this.submitPrompt(this.chars[this.cursor]);
         }
-    }
-
-    setPrompt(input) {
-        this.prompt = input;
-        // TODO: output display;
     }
 
     submitPrompt(char) {
@@ -110,8 +110,8 @@ export default class Terminal {
             if(matches === 'match') {
                 console.log('yay');
             } else {
-                this.setPrompt(`Failure ${char.wordData}`)
-                this.setPrompt(`Matches: ${matches}`)
+                this.prompt.setPrompt(`Failure ${char.wordData}`)
+                this.prompt.setPrompt(`Matches: ${matches}`)
                 this.attempts -= 1;
                 this.setAttempts(this.attempts);
                 if(this.attempts === 0) {
@@ -123,11 +123,27 @@ export default class Terminal {
         }
     }
 
+    /**
+     * Sets the number of attempts remaining, starting at 5.
+     *
+     * @param {number} amt
+     * @memberof Terminal
+     */
     setAttempts(amt) {
+        if(amt < 0) {
+            amt = 0;
+        }
         const attempts = document.getElementById('attempts');
         attempts.innerHTML = '▉ '.repeat(amt);
     }
 
+    /**
+     * Populates the side columns with hex values that start at a random number
+     * and increment by 12.  
+     * I guess they're just to make them look like memory addresses
+     *
+     * @memberof Terminal
+     */
     populateSideColumns() {
         const [ side1, side2 ] = document.querySelectorAll('.hex');
 
@@ -145,8 +161,15 @@ export default class Terminal {
         }
     }
 
+    /**
+     * Populates the grid with special characters
+     * Once it does that, it adds words
+     * Once it does that, it adds matched brackets
+     * Once it does that, it adds unmatched brackets
+     * @memberof Terminal
+     */
     populateGrid() {
-        const SPECIAL = `!@#$%^&*_+-=\`\\|;':",./?`.split('');
+        const SPECIAL = `!@#$%^&*_+-=\`\\|;':",/?`.split('');
         const BRACKETS = `{}[]<>()`.split('');
         const [ side1, side2 ] = document.querySelectorAll('.code');
         const usedPositions = new Set();
@@ -181,7 +204,7 @@ export default class Terminal {
             let position;
             do {
                 position = row + random(12);
-            } while(position + this.wordLength < this.MAX_TOTAL_CHARS);
+            } while(position + this.wordLength > this.MAX_TOTAL_CHARS && usedPositions.has(position));
 
             // add the word to that position character by character
             word.split('').forEach(character => {
@@ -197,6 +220,24 @@ export default class Terminal {
                 position += 1;
             });
         });
-        console.log(usedRows);
+
+        // finally, add the brackets
+        let func = 'reset';
+        for(let i = 0; i < 5; i++) {
+            let row;
+            do {
+                row = i < 3 ? ROWS[random(ROWS.length / 2)]
+                                : ROWS[random(ROWS.length, (ROWS.length / 2) + 1)];
+            } while(usedRows.has(row));
+            usedRows.add(row);
+            const start = row + random(11);
+            const end = start + random(12 - (start % 12));
+            const index = random(4) * 2;
+            const [ open, close ] = [ BRACKETS[index], BRACKETS[index + 1] ];
+            let id = i;
+            this.chars[start].setBracket(open, { start, end, id, func });
+            this.chars[end].setBracket(close, { start, end, id, func });
+            func = 'dud';
+        }
     }
 }

@@ -10,8 +10,29 @@
 <body>
     <header>
         <h1>Fallout Terminal</h1>
-        <p>Fallout Terminal emulates a terminal from the Fallout series.  Try to guess the password before you run out of attempts!</p>
+        <p>Fallout Terminal emulates a terminal from the Fallout series, specifically Fallout 3 and 4.  Try to guess the password before you run out of attempts!</p>
         <h3>How to play:</h3>
+        <p>The object of the game is to guess the password.  One of the ten or so words on the screen will be the password.  You have five chances to guess.  If you pick the wrong one, you lose a chance, however it will offer you clues by telling you which letters in the word match.  Each matching letter must be the same letter in the same position in the word</p>
+        <h4>Example:</h4>
+        <p>If the password is "fate" and I chose "mute", then it will reveal I have two matches because the "t" and the "e" are in the same place in both words.  However, even if the same letters are present, such as in "evil" and "vile", there are no matches because none of the letters are in the same spot.</p>
+        <p>You can also scan for any brackets in the code.  If there are any matching brackets on the same line that don't contain a word, they'll help you.  They can remove a dud or, if you're really lucky, reset your attempts.</p>
+        <p>There are 4 difficulties:</p>
+        <ul>
+            <li>Novice: words are 4-5 letters long</li>
+            <li>Advanced: words are 6-8 letters long</li>
+            <li>Expert: words are 9-10 letters long</li>
+            <li>Master: words are 11-12 letters long</li>
+        </ul>
+        <p>
+            <label for="diff">Pick a difficulty!</label>
+            <select id="diff">
+                <option value="novice">Novice</option>
+                <option value="advanced">Advanced</option>
+                <option value="expert">Expert</option>
+                <option value="master">Master</option>
+            </select>
+            <button id="play">Play!</button>
+        </p>
     </header>
     <div class="terminal-grid">
         <div class="terminal-head">
@@ -24,7 +45,7 @@
             <div class="terminal-col-narrow hex"></div>
             <div class="terminal-col-wide code"></div>
             <div class="log" id="answers">
-                <div id="input">>; halfman</div>
+                <div id="input"></div>
             </div>
         </div>
     </div>
