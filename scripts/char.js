@@ -19,13 +19,27 @@ export default class Char {
     }
 
     select() {
-        this.select = true;
+        this.selected = true;
         this.div.classList.add('selected');
     }
 
-    setWord(char, word) {
+    deselect() {
+        this.selected = false;
+        this.div.classList.remove('selected');
+    }
+
+    setWord(char, { word, position }) {
         this.char = char;
         this.div.innerHTML = char;
-        this.word = word;
+        this.wordData = { word, position };
+    }
+
+    setBracket({ start, end, id }) {
+        this.bracketData = { start, end, id};
+    }
+
+    setChar(char) {
+        this.char = char;
+        this.div.innerHTML = char;
     }
 }

@@ -20,9 +20,9 @@ body {
     background: var(--bg-screen);
     margin: 0 auto;
     padding: 2rem;
-    width: 80%;
+    width: 70%;
     display: grid;
-    grid-template-rows: 1fr 5fr;
+    grid-template-rows: auto;
     border-radius: 15%;
 }
 
@@ -34,7 +34,7 @@ body {
 .terminal-body {
     padding-bottom: 1.25rem;
     display: grid;
-    grid-template-columns: 1fr 4fr 1fr 4fr 1fr
+    grid-template-columns: 1fr 3fr 1fr 3fr 3fr
 }
 
 .terminal-col-narrow {
@@ -47,8 +47,22 @@ body {
     grid-template: repeat(16, 1fr) / repeat(12, 1rem);
 }
 
+.log {
+    display: grid;
+    grid-auto-flow: dense;
+}
+
+#input {
+    grid-row: 16;
+}
+
 /* inverse colors for selected characters */
 .selected {
     background: var(--terminal-text-color);
     color: var(--bg-screen);
+}
+
+footer {
+    margin: 1rem auto;
+    text-align: center;
 }
