@@ -169,7 +169,7 @@ export default class Terminal {
      * @memberof Terminal
      */
     populateGrid() {
-        const SPECIAL = `!@#$%^&*_+-=\`\\|;':",/?`.split('');
+        const SPECIAL = `!@#$%^&*_+-=\`\\|;':".,/?`.split('');
         const BRACKETS = `{}[]<>()`.split('');
         const [ side1, side2 ] = document.querySelectorAll('.code');
         const usedPositions = new Set();
