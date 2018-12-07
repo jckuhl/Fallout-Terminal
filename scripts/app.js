@@ -32,4 +32,9 @@ import Terminal from './terminal.js';
     const playBtn = document.getElementById('play');
     playBtn.addEventListener('click', startGame);
 
+
+    //! REMOVE development convienence only
+    const terminal = new Terminal('.terminal-grid');
+    terminal.play('novice');
+    //! REMOVE ^^^^
 })();

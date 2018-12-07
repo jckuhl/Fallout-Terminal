@@ -50,6 +50,10 @@ export default class Terminal {
         window.addEventListener('keyup', move);
     }
 
+    deselectAll() {
+        this.chars.forEach(char=> char.deselect());
+    }
+
     moveCursor(event) {
         event.preventDefault();
 
@@ -83,24 +87,29 @@ export default class Terminal {
                     return calcPosition(position, 1, 1);
                 },
             }
+
+            const selectAll = (char)=> char.select();
+
             this.cursor = move[event.key](this.cursor);
-            if(!this.chars[this.cursor].wordData) {
-                this.chars.forEach(char => char.deselect());
-                this.chars[this.cursor].select();
-                this.prompt.setPrompt(this.chars[this.cursor].char);
-            } else if(this.chars[this.cursor].bracketData) {
-                console.log('brackets! ' + this.chars[this.cursor]);
-            } else {
-                this.chars.forEach(char => char.deselect());
-                this.chars[this.cursor].select();
-                const word = this.chars[this.cursor].wordData.word;
+            this.deselectAll();
+            const selectedChar = this.chars[this.cursor];
+            if(selectedChar.wordData) {
+                selectedChar.select();
+                const word = selectedChar.wordData.word;
                 this.chars.filter(char => char.wordData && char.wordData.word === word)
-                            .forEach(char => char.select());
+                            .forEach(selectAll);
                 this.prompt.setPrompt(word);
+            } else if(selectedChar.bracketData) {
+                const id = selectedChar.bracketData.id;
+                const bracket = this.chars.filter(char => char.bracketData && char.bracketData.id === id);
+                bracket.forEach(selectAll);
+                this.prompt.setPrompt(bracket.map(char=> char.char).join(''));
+            } else {
+                selectedChar.select();
+                this.prompt.setPrompt(selectedChar.char);
             }
-            console.log(this.chars[this.cursor])
         } else if(event.key === "Enter") {
-            this.submitPrompt(this.chars[this.cursor]);
+            this.submitPrompt(selectedChar);
         }
     }
 
@@ -236,6 +245,9 @@ export default class Terminal {
             const [ open, close ] = [ BRACKETS[index], BRACKETS[index + 1] ];
             let id = i;
             this.chars[start].setBracket(open, { start, end, id, func });
+            for(let i = start; i < end; i++) {
+                this.chars[i].setBracket(this.chars[i].char, { start, end, id, func});
+            }
             this.chars[end].setBracket(close, { start, end, id, func });
             func = 'dud';
         }
