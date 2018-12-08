@@ -51,6 +51,7 @@ body {
 .log {
     display: grid;
     grid-auto-flow: dense;
+    grid-template-rows: repeat(16, 1fr);
 }
 
 #input {

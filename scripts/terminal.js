@@ -54,6 +54,12 @@ export default class Terminal {
         this.chars.forEach(char=> char.deselect());
     }
 
+    /**
+     * Moves the cursor from grid to grid
+     *
+     * @param {Event} event
+     * @memberof Terminal
+     */
     moveCursor(event) {
         event.preventDefault();
 
@@ -62,13 +68,13 @@ export default class Terminal {
             "ArrowDown",
             "ArrowLeft",
             "ArrowRight"
-        ]
+        ];
 
         if(arrows.includes(event.key)) {
             const calcPosition = (position, direction, amt) => {
                 const newPosition = position + (amt * direction);
                 if(newPosition < 0 || newPosition >= (32 * 12)) {
-                    return position
+                    return position;
                 }
                 return newPosition;
             }
@@ -81,54 +87,91 @@ export default class Terminal {
                     return calcPosition(position, 1, 12);
                 },
                 ArrowLeft: (position)=> {
-                    return calcPosition(position, -1, 1);
+                    const edges = [];
+                    for(let i = 16; i < 32; i++) {
+                        edges.push(i * 12);
+                    }
+                    const distance = edges.includes(position) ? (12 * 15) + 1 : 1;
+                    return calcPosition(position, -1, distance);
                 },
                 ArrowRight: (position)=> {
-                    return calcPosition(position, 1, 1);
+                    const edges = [];
+                    for(let i = 0; i < 16; i++) {
+                        edges.push((i * 12) + 11);
+                    }
+                    const distance = edges.includes(position) ? (12 * 15) + 1 : 1;
+                    return calcPosition(position, 1, distance);
                 },
             }
 
+            // helper function for the .forEach calls later on
             const selectAll = (char)=> char.select();
 
             this.cursor = move[event.key](this.cursor);
             this.deselectAll();
             const selectedChar = this.chars[this.cursor];
+            
+            // if there's a wordData object, select the word
             if(selectedChar.wordData) {
                 selectedChar.select();
                 const word = selectedChar.wordData.word;
                 this.chars.filter(char => char.wordData && char.wordData.word === word)
                             .forEach(selectAll);
                 this.prompt.setPrompt(word);
+
+            // if there's a bracketData object, select the bracket pair
             } else if(selectedChar.bracketData) {
                 const id = selectedChar.bracketData.id;
                 const bracket = this.chars.filter(char => char.bracketData && char.bracketData.id === id);
                 bracket.forEach(selectAll);
                 this.prompt.setPrompt(bracket.map(char=> char.char).join(''));
+
+            // otherwise just select the character
             } else {
                 selectedChar.select();
                 this.prompt.setPrompt(selectedChar.char);
             }
         } else if(event.key === "Enter") {
-            this.submitPrompt(selectedChar);
+            this.submitPrompt(this.chars[this.cursor]);
         }
     }
 
     submitPrompt(char) {
         if(char.wordData) {
             const matches = compare(char.wordData.word, this.password);
+
+            // if the selected word is the password, win the game
             if(matches === 'match') {
                 console.log('yay');
+
+            // or, reduce the attempts and lose if attempts is at zero
             } else {
-                this.prompt.setPrompt(`Failure ${char.wordData}`)
-                this.prompt.setPrompt(`Matches: ${matches}`)
+                this.prompt.setPrompt(char.wordData.word, true);
+                this.prompt.setPrompt('Entry denied.', true);
+                this.prompt.setPrompt(`Likeness=${matches}`, true);
                 this.attempts -= 1;
                 this.setAttempts(this.attempts);
                 if(this.attempts === 0) {
                     console.log('You lose');
                 }
             }
+        } else if(char.bracketData) {
+            if(char.bracketData.func === 'reset') {
+                this.setAttempts(5);
+                this.prompt.setPrompt('Tries reset.', true);
+            } else {
+                let dud = this.words.filter(word => word !== this.password)[random(this.words.length - 1)];
+                let chars = this.chars.filter(char => char.wordData && char.wordData.word === dud);
+                chars.forEach(char => {
+                    char.wordData = null;
+                    char.setChar('.');
+                });
+                this.words = this.words.filter(word => word !== dud);
+                this.prompt.setPrompt('Dud removed.', true);
+            }
         } else {
-            console.log('error: ' + char.char);
+            this.prompt.setPrompt(char.char, true);
+            this.prompt.setPrompt('Error', true);
         }
     }
 
@@ -230,7 +273,7 @@ export default class Terminal {
             });
         });
 
-        // finally, add the brackets
+        // add the bracket pairs
         let func = 'reset';
         for(let i = 0; i < 5; i++) {
             let row;
@@ -250,6 +293,12 @@ export default class Terminal {
             }
             this.chars[end].setBracket(close, { start, end, id, func });
             func = 'dud';
+        }
+
+        // finally, sprinkle in some random unbalanced brackets
+        const numBrackets = random(10, 7);
+        for(let i = 0; i < numBrackets; i++) {
+
         }
     }
 }
