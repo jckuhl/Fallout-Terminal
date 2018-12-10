@@ -10,15 +10,27 @@ export default class Terminal {
     constructor(selector) {
         this.terminal = document.querySelector(selector);
         this.prompt = new Prompt('#answers');
-        this.prompt.input.innerHTML = '>'
-        this.wordLength = 0;
-        this.words = [];
-        this.chars = [];
-        this.password = '';
-        this.attempts = 5;
-        this.cursor = 0;
         this.MAX_TOTAL_CHARS = 12 * 32;
         this.MAX_HALF_CHARS = 12 * 16;
+    }
+
+    /**
+     * Displays the terminal or displays the end game messages, dependin on the value
+     * of displayTerminal
+     *
+     * @param {boolean} displayTerminal if true, displays the terminal
+     * @memberof Terminal
+     */
+    toggleGrid(displayTerminal) {
+        const terminal = document.querySelector('.terminal-body');
+        const message = document.querySelector('.terminal-message');
+        if(displayTerminal) {
+            terminal.style.display = 'grid';
+            message.style.display = 'none';
+        } else {
+            terminal.style.display = 'none';
+            message.style.display = 'grid';
+        }
     }
 
     /**
@@ -28,26 +40,49 @@ export default class Terminal {
      * @memberof Terminal
      */
     async play(level) {
+
+        // set the difficulty
         const difficulty = {
             novice: { min: 4, max: 5},
             advanced: { min: 6, max: 8 },
             expert: { min: 9, max: 10 },
             master: { min: 11, max: 12 }
         }
+        this.wordLength = random(difficulty[level].max + 1, difficulty[level].min);
 
-        this.wordLength = random(difficulty[level].max, difficulty[level].min);
+        // get the words
         let words = await http.getWords();
         words = words.filter(word => word.length === this.wordLength).map(word => word.toUpperCase());
-        for(let i = 0; i < 10; i++) {
-            this.words.push(words[random(words.length)]);
+
+        // use a set to avoid duplicates
+        this.words = new Set();
+        while(this.words.size !== 10) {
+            this.words.add(words[random(words.length)]);
         }
+
+        // turn it into an array to allow for array methods
+        this.words = Array.from(this.words);
+
+        // set the properties
         this.password = this.words[random(this.words.length)];
         console.log(this.password); // TODO: remove
+        this.cursor = 0;
+        this.chars = [];
+        this.prompt.input.innerHTML = '>'
+        this.password = '';
+        this.attempts = 5;
+
+        // build the coolumns;
+        document.querySelectorAll('.terminal-col-narrow, .terminal-col-wide')
+            .forEach(col => col.innerHTML = '');
         this.setAttempts(this.attempts);
+        this.toggleGrid(true);
         this.populateSideColumns();
         this.populateGrid();
-        const move = this.moveCursor.bind(this);
-        window.addEventListener('keyup', move);
+
+        // add the keyboard movements
+        this.moveCursor = this.moveCursor.bind(this);
+        window.addEventListener('keyup', this.moveCursor);
     }
 
     deselectAll() {
@@ -136,13 +171,23 @@ export default class Terminal {
         }
     }
 
+    endGame(msg) {
+        window.removeEventListener('keyup', this.moveCursor);
+        setTimeout(()=> {
+            this.toggleGrid(false);
+            document.getElementById('display').innerHTML = msg;
+        }, 1000)
+    }
+
     submitPrompt(char) {
         if(char.wordData) {
             const matches = compare(char.wordData.word, this.password);
 
             // if the selected word is the password, win the game
             if(matches === 'match') {
-                console.log('yay');
+                this.prompt.setPrompt(char.wordData.word, true);
+                this.prompt.setPrompt('Entry granted!', true);
+                this.endGame('User Authenticated')
 
             // or, reduce the attempts and lose if attempts is at zero
             } else {
@@ -152,7 +197,8 @@ export default class Terminal {
                 this.attempts -= 1;
                 this.setAttempts(this.attempts);
                 if(this.attempts === 0) {
-                    console.log('You lose');
+                    this.prompt.setPrompt('Initializing Lockout', true);
+                    this.endGame('System locked out')
                 }
             }
         } else if(char.bracketData) {

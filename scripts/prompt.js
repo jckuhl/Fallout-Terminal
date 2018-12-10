@@ -10,6 +10,11 @@ export default class Prompt {
         this.input = document.querySelector('#input');
         this.history = [];
 
+        this.buildSpaces();
+        
+    }
+
+    buildSpaces() {
         // start out with fifteen spaces so the display appears to work upward
         // 16th is always the prompt itself (defined in CSS file, #input)
         for(let i = 0; i < 15; i++) {
