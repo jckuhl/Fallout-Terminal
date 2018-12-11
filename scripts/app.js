@@ -1,5 +1,22 @@
 import Terminal from './terminal.js';
 
+class Game {
+    constructor() {
+        this.terminal = new Terminal('.terminal-grid');
+        this.playBtn = document.getElementById('play');
+        this.playBtn.addEventListener('click', this.startGame.bind(this));
+
+        window.addEventListener('keyup', this.terminal.moveCursor.bind(this.terminal));
+    }
+
+    startGame(event) {
+        event.preventDefault();
+        this.playBtn.blur();
+        const difficulty = document.querySelector('select').value;
+        this.terminal.play(difficulty);
+    }
+}
+
 (function() {
 
     const arrows = [
@@ -20,21 +37,11 @@ import Terminal from './terminal.js';
             event.preventDefault();
     });
 
-    function startGame(event) {
-        event.preventDefault();
-        playBtn.blur();
-        const difficulty = document.querySelector('select').value;
-        const terminal = new Terminal('.terminal-grid');
-        terminal.play(difficulty);
-    }
 
-
-    const playBtn = document.getElementById('play');
-    playBtn.addEventListener('click', startGame);
 
 
     //! REMOVE development convienence only
-    const terminal = new Terminal('.terminal-grid');
-    terminal.play('novice');
+    window.game = new Game();
+    game.terminal.play('novice');
     //! REMOVE ^^^^
 })();

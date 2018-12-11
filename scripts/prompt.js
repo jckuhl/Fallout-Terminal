@@ -7,22 +7,30 @@
 export default class Prompt {
     constructor(selector) {
         this.div = document.querySelector(selector);
-        this.input = document.querySelector('#input');
         this.history = [];
 
-        this.buildSpaces();
+        this.createLog();
         
     }
 
-    buildSpaces() {
+    createLog() {
         // start out with fifteen spaces so the display appears to work upward
         // 16th is always the prompt itself (defined in CSS file, #input)
+        this.input = document.createElement('div');
+        this.input.id = 'input';
+        this.div.appendChild(this.input);
         for(let i = 0; i < 15; i++) {
             const space = document.createElement('div');
             space.innerHTML = ' ';
             this.div.appendChild(space);
             this.history.push(space);
         }
+    }
+
+    wipeLog() {
+        this.input = null;
+        this.history = [];
+        this.div.innerHTML = '';
     }
 
     /**

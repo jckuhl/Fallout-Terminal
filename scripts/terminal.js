@@ -79,10 +79,6 @@ export default class Terminal {
         this.toggleGrid(true);
         this.populateSideColumns();
         this.populateGrid();
-
-        // add the keyboard movements
-        this.moveCursor = this.moveCursor.bind(this);
-        window.addEventListener('keyup', this.moveCursor);
     }
 
     deselectAll() {
@@ -171,9 +167,15 @@ export default class Terminal {
         }
     }
 
+    /**
+     * Ends the game, displays a message and sets up for the next game
+     *
+     * @param {String} msg message to be displayed
+     * @memberof Terminal
+     */
     endGame(msg) {
-        window.removeEventListener('keyup', this.moveCursor);
         setTimeout(()=> {
+            this.prompt.wipeLog();
             this.toggleGrid(false);
             document.getElementById('display').innerHTML = msg;
         }, 1000)
@@ -244,6 +246,7 @@ export default class Terminal {
      */
     populateSideColumns() {
         const [ side1, side2 ] = document.querySelectorAll('.hex');
+        [side1, side2].forEach(side => side.innerHTML = '');
 
         let MIN = 4096;
         let MAX = 65535 - (32 * 12);
@@ -270,6 +273,7 @@ export default class Terminal {
         const SPECIAL = `!@#$%^&*_+-=\`\\|;':".,/?`.split('');
         const BRACKETS = `{}[]<>()`.split('');
         const [ side1, side2 ] = document.querySelectorAll('.code');
+        [side1, side2].forEach(side => side.innerHTML = '');
         const usedPositions = new Set();
         const usedRows = new Set();
 
