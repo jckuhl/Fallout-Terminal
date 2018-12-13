@@ -1,3 +1,11 @@
+/**
+ * Models a single character on a grid.
+ * If the character is a word or a bracket, it will have wordData and bracketData objects
+ * Otherwise it'll just be a single character.
+ *
+ * @export
+ * @class Char
+ */
 export default class Char {
     /**
      *Creates an instance of Char.
@@ -29,8 +37,8 @@ export default class Char {
     /**
      * Sets a character to be a letter of a word
      *
-     * @param {*} char the letter this character is being set to
-     * @param {*} { word, position }
+     * @param {string} char the letter this character is being set to
+     * @param {object} { word, position }
      * word determines which word the letter belongs to
      * position gives its position
      * @memberof Char
@@ -43,8 +51,8 @@ export default class Char {
     /**
      * Sets a character to be an open or closing bracket, or sets the characters between them.
      *
-     * @param {*} char the bracket character its being set to
-     * @param {*} { start, end, id, func }
+     * @param {string} char the bracket character its being set to
+     * @param {object} { start, end, id, func }
      * start and end are open/close positions of brackets
      * id uniquely identifies all characters contained by brackets
      * func determines its function, whether it resets tries or removes a dud

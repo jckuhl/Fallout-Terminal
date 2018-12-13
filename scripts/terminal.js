@@ -1,12 +1,20 @@
 import random from './random.js';
 import arrayshuffle from './arrayshuffle.js';
-import { http } from './http.js';
 import { compare } from './wordcompare.js';
 import Char from './char.js';
 import Prompt from './prompt.js';
 
 'use strict';
 
+/**
+ * Terminal that controls the display of the, well, terminal.
+ * Populates the side bars and grids (layout controlled by CSS-Grid)
+ * Controls movement of the cursor
+ * Allows user to select brackets and words and keeps a log of attempts made
+ *
+ * @export
+ * @class Terminal
+ */
 export default class Terminal {
     constructor(selector, words) {
         this.wordbank = words;
@@ -36,9 +44,9 @@ export default class Terminal {
     }
 
     /**
-     * Starts the game.  Builds the terminal and grabs the words from Firebase
+     * Starts the game.  Destroys old terminals and values and builds a new one.
      *
-     * @param {*} level
+     * @param {string} level novice advance expert master
      * @memberof Terminal
      */
     play(level) {
@@ -53,7 +61,6 @@ export default class Terminal {
         this.wordLength = random(difficulty[level].max + 1, difficulty[level].min);
 
         // get the words
-        // let words = await http.getWords();
         const words = this.wordbank.filter(word => word.length === this.wordLength).map(word => word.toUpperCase());
 
         // use a set to avoid duplicates
@@ -69,7 +76,6 @@ export default class Terminal {
         this.password = this.words[random(this.words.length)];
         this.cursor = 0;
         this.chars = [];
-        this.password = '';
         this.attempts = 5;
 
         // build the coolumns;
@@ -81,6 +87,9 @@ export default class Terminal {
         this.toggleGrid(true);
         this.populateSideColumns();
         this.populateGrid();
+
+        // first item is always selected
+        this.prompt.setPrompt(this.chars[0].char);
     }
 
     deselectAll() {
@@ -104,6 +113,13 @@ export default class Terminal {
         ];
 
         if(arrows.includes(event.key)) {
+            /**
+             * Calculates the new position or doesn't move if new position is invalid.
+             * 
+             * @param {number} position starting position
+             * @param {number} direction should be 1 (down and right) or -1 (up or left)
+             * @param {number} amt should be 1 (left or right) or 12 (up or down) or distance to other grid
+             */
             const calcPosition = (position, direction, amt) => {
                 const newPosition = position + (amt * direction);
                 if(newPosition < 0 || newPosition >= (32 * 12)) {
@@ -112,6 +128,9 @@ export default class Terminal {
                 return newPosition;
             }
 
+            // holds movement functions
+            // key values match event.key for arrow presses
+            // ArrowLeft and ArrowRight also have ability to jump across to other side
             const move = {
                 ArrowUp: (position)=> {
                     return calcPosition(position, -1, 12);
@@ -183,6 +202,13 @@ export default class Terminal {
         }, 1000)
     }
 
+    /**
+     * Sends the selected character to the prompter
+     * Performs the appropriate action if it recieves a char, bracket or word
+     *
+     * @param {Char} char
+     * @memberof Terminal
+     */
     submitPrompt(char) {
         if(char.wordData) {
             const matches = compare(char.wordData.word, this.password);

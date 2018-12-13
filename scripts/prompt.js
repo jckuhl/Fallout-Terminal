@@ -10,6 +10,11 @@ export default class Prompt {
         this.history = [];
     }
 
+    /**
+     * Initializes the display of the log and provides fifteen 'spacer' divs and one #input div
+     *
+     * @memberof Prompt
+     */
     createLog() {
         // start out with fifteen spaces so the display appears to work upward
         // 16th is always the prompt itself (defined in CSS file, #input)
@@ -25,6 +30,11 @@ export default class Prompt {
         }
     }
 
+    /**
+     * Wipes the log and history so a new game can be started
+     *
+     * @memberof Prompt
+     */
     wipeLog() {
         this.input = null;
         this.history = [];

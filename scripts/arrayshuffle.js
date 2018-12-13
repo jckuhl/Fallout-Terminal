@@ -1,3 +1,11 @@
+/**
+ * Returns a new array of the input array's values shuffled.
+ * Does not mutate original array
+ *
+ * @export
+ * @param {array} array
+ * @returns {array} shuffled array
+ */
 export default function arrayShuffle(array) {
     const result = [];
     const used = new Set();
