@@ -37,11 +37,5 @@ class Game {
             event.preventDefault();
     });
 
-
-
-
-    //! REMOVE development convienence only
-    window.game = new Game();
-    game.terminal.play('novice');
-    //! REMOVE ^^^^
+    new Game();
 })();

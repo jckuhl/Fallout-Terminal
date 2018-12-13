@@ -13,6 +13,10 @@ body {
     padding: 0;
 }
 
+header {
+    padding: 1em;
+}
+
 .terminal-grid {
     font-family: var(--terminal-text-font);
     color: var(--terminal-text-color);

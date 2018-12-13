@@ -1,4 +1,5 @@
 import random from './random.js';
+import arrayshuffle from './arrayshuffle.js';
 import { http } from './http.js';
 import { compare } from './wordcompare.js';
 import Char from './char.js';
@@ -68,13 +69,14 @@ export default class Terminal {
         console.log(this.password); // TODO: remove
         this.cursor = 0;
         this.chars = [];
-        this.prompt.input.innerHTML = '>'
         this.password = '';
         this.attempts = 5;
 
         // build the coolumns;
         document.querySelectorAll('.terminal-col-narrow, .terminal-col-wide')
             .forEach(col => col.innerHTML = '');
+        this.prompt.wipeLog();
+        this.prompt.createLog();
         this.setAttempts(this.attempts);
         this.toggleGrid(true);
         this.populateSideColumns();
@@ -217,6 +219,9 @@ export default class Terminal {
                 this.words = this.words.filter(word => word !== dud);
                 this.prompt.setPrompt('Dud removed.', true);
             }
+            let bracketId = char.bracketData.id;
+            this.chars.filter(char => char.bracketData && char.bracketData.id === bracketId)
+                        .forEach(char => char.bracketData = null);
         } else {
             this.prompt.setPrompt(char.char, true);
             this.prompt.setPrompt('Error', true);
@@ -235,6 +240,7 @@ export default class Terminal {
         }
         const attempts = document.getElementById('attempts');
         attempts.innerHTML = '▉ '.repeat(amt);
+        this.attempts = amt;
     }
 
     /**
@@ -277,6 +283,18 @@ export default class Terminal {
         const usedPositions = new Set();
         const usedRows = new Set();
 
+        // fetches an unused row from either half of the grid
+        const getUnusedRow = (i, half)=> {
+            let row;
+            do {
+                row = i < half ? ROWS[random(ROWS.length / 2)]
+                                : ROWS[random(ROWS.length, (ROWS.length / 2) + 1)];
+            } while(usedRows.has(row));
+            usedRows.add(row);
+            return row;
+        }
+
+        // generates an array of rows (multiples of 12)
         const ROWS = [];
         for(let i = 0; i < 32; i++) {
             ROWS.push(i * 12);
@@ -292,21 +310,16 @@ export default class Terminal {
         }
 
         // add the words at random
-        this.words.forEach((word, index) => {
+        this.words.forEach((word, i) => {
             
             // find an unused row
-            let row;
-            do {
-                row = index < 5 ? ROWS[random(ROWS.length / 2)]
-                                : ROWS[random(ROWS.length, (ROWS.length / 2) + 1)];
-            } while(usedRows.has(row));
-            usedRows.add(row);
+            let row = getUnusedRow(i, this.words.length / 2);
 
             // calculate the starting position
             let position;
             do {
                 position = row + random(12);
-            } while(position + this.wordLength > this.MAX_TOTAL_CHARS && usedPositions.has(position));
+            } while(position + this.wordLength > this.MAX_TOTAL_CHARS || usedPositions.has(position));
 
             // add the word to that position character by character
             word.split('').forEach(character => {
@@ -324,14 +337,10 @@ export default class Terminal {
         });
 
         // add the bracket pairs
-        let func = 'reset';
+        let functions = arrayshuffle(['reset', 'dud', 'dud', 'dud', 'dud']);
         for(let i = 0; i < 5; i++) {
-            let row;
-            do {
-                row = i < 3 ? ROWS[random(ROWS.length / 2)]
-                                : ROWS[random(ROWS.length, (ROWS.length / 2) + 1)];
-            } while(usedRows.has(row));
-            usedRows.add(row);
+            let func = functions[i];
+            let row = getUnusedRow(i, 3);
             const start = row + random(11);
             const end = start + random(12 - (start % 12));
             const index = random(4) * 2;
@@ -342,13 +351,16 @@ export default class Terminal {
                 this.chars[i].setBracket(this.chars[i].char, { start, end, id, func});
             }
             this.chars[end].setBracket(close, { start, end, id, func });
-            func = 'dud';
         }
 
         // finally, sprinkle in some random unbalanced brackets
-        const numBrackets = random(10, 7);
-        for(let i = 0; i < numBrackets; i++) {
-
+        const numBrackets = random(20,15);
+        for(let i = 0; i < numBrackets;) {
+            let char = this.chars[random(this.chars.length)];
+            if(!char.wordData && !char.bracketData) {
+                char.setChar(BRACKETS[random(BRACKETS.length)]);
+                i++;
+            }
         }
     }
 }

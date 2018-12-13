@@ -1,10 +1,8 @@
 export default class Char {
     /**
      *Creates an instance of Char.
-     * @param {*} char the character it displays
-     * @param {*} position position on the grid
-     * @param {boolean} [isLetter=false] Determines if letter in word
-     * @param {boolean} [isBracket=false] Determines if this is a bracket for removing dudes/reseting attempts
+     * @param {string} char the character it displays
+     * @param {number} position position on the grid
      * @memberof Char
      */
     constructor(char, position) {

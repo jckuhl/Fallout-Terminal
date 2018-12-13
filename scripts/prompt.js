@@ -8,9 +8,6 @@ export default class Prompt {
     constructor(selector) {
         this.div = document.querySelector(selector);
         this.history = [];
-
-        this.createLog();
-        
     }
 
     createLog() {
@@ -18,6 +15,7 @@ export default class Prompt {
         // 16th is always the prompt itself (defined in CSS file, #input)
         this.input = document.createElement('div');
         this.input.id = 'input';
+        this.input.innerHTML = '>'
         this.div.appendChild(this.input);
         for(let i = 0; i < 15; i++) {
             const space = document.createElement('div');
