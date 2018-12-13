@@ -1,12 +1,15 @@
 import Terminal from './terminal.js';
+import { http } from './http.js';
 
 class Game {
     constructor() {
-        this.terminal = new Terminal('.terminal-grid');
-        this.playBtn = document.getElementById('play');
-        this.playBtn.addEventListener('click', this.startGame.bind(this));
+        http.getWords().then(words => {
+            this.terminal = new Terminal('.terminal-grid', words);
+            this.playBtn = document.getElementById('play');
+            this.playBtn.addEventListener('click', this.startGame.bind(this));
 
-        window.addEventListener('keyup', this.terminal.moveCursor.bind(this.terminal));
+            window.addEventListener('keyup', this.terminal.moveCursor.bind(this.terminal));
+        });
     }
 
     startGame(event) {

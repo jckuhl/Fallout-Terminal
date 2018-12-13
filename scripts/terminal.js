@@ -8,7 +8,8 @@ import Prompt from './prompt.js';
 'use strict';
 
 export default class Terminal {
-    constructor(selector) {
+    constructor(selector, words) {
+        this.wordbank = words;
         this.terminal = document.querySelector(selector);
         this.prompt = new Prompt('#answers');
         this.MAX_TOTAL_CHARS = 12 * 32;
@@ -40,7 +41,7 @@ export default class Terminal {
      * @param {*} level
      * @memberof Terminal
      */
-    async play(level) {
+    play(level) {
 
         // set the difficulty
         const difficulty = {
@@ -52,8 +53,8 @@ export default class Terminal {
         this.wordLength = random(difficulty[level].max + 1, difficulty[level].min);
 
         // get the words
-        let words = await http.getWords();
-        words = words.filter(word => word.length === this.wordLength).map(word => word.toUpperCase());
+        // let words = await http.getWords();
+        const words = this.wordbank.filter(word => word.length === this.wordLength).map(word => word.toUpperCase());
 
         // use a set to avoid duplicates
         this.words = new Set();
@@ -66,7 +67,6 @@ export default class Terminal {
 
         // set the properties
         this.password = this.words[random(this.words.length)];
-        console.log(this.password); // TODO: remove
         this.cursor = 0;
         this.chars = [];
         this.password = '';
